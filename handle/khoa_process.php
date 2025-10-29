@@ -20,7 +20,7 @@ switch ($action) {
         handleDeleteKhoa();
         break;
     default:
-        // để im vì file này còn được include từ view
+        // không làm gì thêm, vì file này có thể được include để gọi handleGet*
         break;
 }
 
@@ -40,6 +40,7 @@ function handleGetKhoaById($id) {
 
 /**
  * Xử lý thêm khoa mới
+ * LƯU Ý: mo_ta truyền vào cuối cùng theo hàm addKhoa mới
  */
 function handleCreateKhoa() {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -47,18 +48,22 @@ function handleCreateKhoa() {
         exit();
     }
 
-    $ten_khoa      = trim($_POST['ten_khoa'] ?? '');
-    $mo_ta         = trim($_POST['mo_ta'] ?? '');
-    $truong_khoa   = trim($_POST['truong_khoa'] ?? '');
-    $sdt_lien_he   = trim($_POST['sdt_lien_he'] ?? '');
+    // Lấy dữ liệu từ form
+    $ten_khoa      = trim($_POST['ten_khoa']      ?? '');
+    $truong_khoa   = trim($_POST['truong_khoa']   ?? '');
+    $sdt_lien_he   = trim($_POST['sdt_lien_he']   ?? '');
     $email_lien_he = trim($_POST['email_lien_he'] ?? '');
+    $mo_ta         = trim($_POST['mo_ta']         ?? '');
 
+    // Validate
     if ($ten_khoa === '') {
         header("Location: ../views/khoa/create_khoa.php?error=Vui lòng nhập tên khoa / viện");
         exit();
     }
 
-    $ok = addKhoa($ten_khoa, $mo_ta, $truong_khoa, $sdt_lien_he, $email_lien_he);
+    // GỌI addKhoa với thứ tự MỚI:
+    // addKhoa($ten_khoa, $truong_khoa, $sdt_lien_he, $email_lien_he, $mo_ta)
+    $ok = addKhoa($ten_khoa, $truong_khoa, $sdt_lien_he, $email_lien_he, $mo_ta);
 
     if ($ok) {
         header("Location: ../views/khoa.php?success=Thêm khoa / viện thành công");
@@ -70,6 +75,7 @@ function handleCreateKhoa() {
 
 /**
  * Xử lý cập nhật khoa
+ * LƯU Ý: mo_ta là tham số cuối trong updateKhoa mới
  */
 function handleEditKhoa() {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -78,25 +84,27 @@ function handleEditKhoa() {
     }
 
     $id            = $_POST['id'] ?? '';
-    $ten_khoa      = trim($_POST['ten_khoa'] ?? '');
-    $mo_ta         = trim($_POST['mo_ta'] ?? '');
-    $truong_khoa   = trim($_POST['truong_khoa'] ?? '');
-    $sdt_lien_he   = trim($_POST['sdt_lien_he'] ?? '');
+    $ten_khoa      = trim($_POST['ten_khoa']      ?? '');
+    $truong_khoa   = trim($_POST['truong_khoa']   ?? '');
+    $sdt_lien_he   = trim($_POST['sdt_lien_he']   ?? '');
     $email_lien_he = trim($_POST['email_lien_he'] ?? '');
+    $mo_ta         = trim($_POST['mo_ta']         ?? '');
 
     if ($id === '' || $ten_khoa === '') {
         header("Location: ../views/khoa/edit_khoa.php?id=".$id."&error=Thiếu thông tin bắt buộc");
         exit();
     }
 
-    // Kiểm tra tồn tại
+    // Kiểm tra tồn tại trước khi cập nhật
     $current = getKhoaById($id);
     if (!$current) {
         header("Location: ../views/khoa.php?error=Khoa / Viện không tồn tại");
         exit();
     }
 
-    $ok = updateKhoa($id, $ten_khoa, $mo_ta, $truong_khoa, $sdt_lien_he, $email_lien_he);
+    // GỌI updateKhoa với thứ tự MỚI:
+    // updateKhoa($id, $ten_khoa, $truong_khoa, $sdt_lien_he, $email_lien_he, $mo_ta)
+    $ok = updateKhoa($id, $ten_khoa, $truong_khoa, $sdt_lien_he, $email_lien_he, $mo_ta);
 
     if ($ok) {
         header("Location: ../views/khoa.php?success=Cập nhật khoa / viện thành công");
@@ -108,6 +116,7 @@ function handleEditKhoa() {
 
 /**
  * Xử lý xóa khoa
+ * (không đổi logic vì không liên quan mo_ta)
  */
 function handleDeleteKhoa() {
     if (!isset($_GET['id']) || $_GET['id'] === '') {

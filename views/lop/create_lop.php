@@ -1,114 +1,65 @@
 <?php
+session_start();
 require_once __DIR__ . '/../../functions/auth.php';
 checkLogin(__DIR__ . '/../../index.php');
-
 require_once __DIR__ . '/../../functions/lop_functions.php';
-
-// Lấy danh sách khoa để chọn khoa cho lớp
 $khoas = getAllKhoaForDropdown();
+$pageTitle = 'Thêm lớp mới';
+require __DIR__ . '/../../includes/header.php';
 ?>
-<!DOCTYPE html>
-<html>
 
-<head>
-    <title>Thêm lớp / chi đoàn mới</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+      <div class="card">
+        <h3 class="mb-4 text-center">THÊM LỚP MỚI</h3>
 
-<body>
-    <div class="container mt-3">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
+        <?php if (isset($_GET['error'])): ?>
+          <div class="alert alert-danger">
+            <?= htmlspecialchars($_GET['error']) ?>
+            <button type="button" class="btn-close" aria-label="Đóng">×</button>
+          </div>
+        <?php endif; ?>
 
-                <h3 class="mt-3 mb-4 text-center">THÊM LỚP / CHI ĐOÀN MỚI</h3>
-
-                <?php if (isset($_GET['error'])): ?>
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <?= htmlspecialchars($_GET['error']) ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                <?php endif; ?>
-
-                <script>
-                // Tự ẩn thông báo sau 3s
-                setTimeout(() => {
-                    let alertNode = document.querySelector('.alert');
-                    if (alertNode) {
-                        let bsAlert = bootstrap.Alert.getOrCreateInstance(alertNode);
-                        bsAlert.close();
-                    }
-                }, 3000);
-                </script>
-
-                <form action="../../handle/lop_process.php" method="POST">
-                    <input type="hidden" name="action" value="create">
-
-                    <!-- Mã lớp / Chi đoàn -->
-                    <div class="mb-3">
-                        <label class="form-label">Mã lớp / Chi đoàn</label>
-                        <input
-                            type="text"
-                            class="form-control"
-                            name="ma_lop"
-                            placeholder="VD: DCT123, CNTT-K45..."
-                            required>
-                    </div>
-
-                    <!-- Tên lớp / Chi đoàn -->
-                    <div class="mb-3">
-                        <label class="form-label">Tên lớp / Chi đoàn</label>
-                        <input
-                            type="text"
-                            class="form-control"
-                            name="ten_lop"
-                            placeholder="VD: Công nghệ thông tin K45"
-                            required>
-                    </div>
-
-                    <!-- Thuộc khoa nào -->
-                    <div class="mb-3">
-                        <label class="form-label">Khoa / Viện</label>
-                        <select class="form-select" name="khoa_id" required>
-                            <option value="">-- Chọn khoa / viện --</option>
-                            <?php foreach ($khoas as $khoa): ?>
-                                <option value="<?= $khoa['id'] ?>">
-                                    <?= htmlspecialchars($khoa['ten_khoa']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-
-                    <!-- Cố vấn học tập -->
-                    <div class="mb-3">
-                        <label class="form-label">Cố vấn học tập / GVCN</label>
-                        <input
-                            type="text"
-                            class="form-control"
-                            name="co_van"
-                            placeholder="VD: ThS. Nguyễn Văn A">
-                    </div>
-
-                    <!-- Bí thư chi đoàn -->
-                    <div class="mb-3">
-                        <label class="form-label">Bí thư chi đoàn</label>
-                        <input
-                            type="text"
-                            class="form-control"
-                            name="bi_thu"
-                            placeholder="VD: Trần Thị B">
-                    </div>
-
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-primary">Lưu lớp</button>
-                        <a href="../lop.php" class="btn btn-secondary">Hủy</a>
-                    </div>
-                </form>
-
+        <form method="post" action="store_lop.php">
+          <div class="mb-3">
+            <label class="form-label">Mã lớp</label>
+            <input type="text" class="form-control" name="ma_lop" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Tên lớp</label>
+            <input type="text" class="form-control" name="ten_lop" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Khoa / Viện</label>
+            <select name="khoa_id" class="form-select" required>
+              <option value="">-- Chọn khoa / viện --</option>
+              <?php foreach ($khoas as $khoa): ?>
+                <option value="<?= htmlspecialchars($khoa['id']) ?>">
+                  <?= htmlspecialchars($khoa['ten_khoa']) ?>
+                </option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Cố vấn học tập</label>
+            <input type="text" class="form-control" name="co_van">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Bí thư Chi đoàn</label>
+            <input type="text" class="form-control" name="bi_thu">
+          </div>
+          <div class="d-flex justify-content-between">
+            <a href="list_lop.php" class="btn btn-secondary"><i class="fa fa-arrow-left"></i> Quay lại</a>
+            <div>
+              <button type="reset" class="btn btn-outline-warning me-2">Xoá form</button>
+              <button type="submit" class="btn btn-success"><i class="fa fa-check"></i> Thêm mới</button>
             </div>
-        </div>
+          </div>
+        </form>
+      </div>
     </div>
+  </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-
-</html>
+<?php require __DIR__ . '/../../includes/footer.php'; ?>

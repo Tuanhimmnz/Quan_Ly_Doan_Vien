@@ -3,16 +3,17 @@ require_once __DIR__ . '/db_connection.php';
 
 /**
  * Lấy tất cả khoa / viện để hiển thị ở trang danh sách
+ * mo_ta được chọn sau cùng
  */
 function getAllKhoa() {
     $conn = getDbConnection();
 
     $sql = "SELECT id,
                    ten_khoa,
-                   mo_ta,
                    truong_khoa,
                    sdt_lien_he,
-                   email_lien_he
+                   email_lien_he,
+                   mo_ta
             FROM khoa
             ORDER BY id ASC";
 
@@ -31,23 +32,23 @@ function getAllKhoa() {
 
 /**
  * Lấy thông tin 1 khoa theo ID (dùng cho trang edit)
+ * mo_ta nằm cuối
  */
 function getKhoaById($id) {
     $conn = getDbConnection();
 
     $sql = "SELECT id,
                    ten_khoa,
-                   mo_ta,
                    truong_khoa,
                    sdt_lien_he,
-                   email_lien_he
+                   email_lien_he,
+                   mo_ta
             FROM khoa
             WHERE id = ?
             LIMIT 1";
 
     $stmt = mysqli_prepare($conn, $sql);
     if (!$stmt) {
-        // Chuẩn đoán lỗi query / lỗi cột / lỗi bảng
         die("Lỗi prepare getKhoaById(): " . mysqli_error($conn));
     }
 
@@ -68,23 +69,23 @@ function getKhoaById($id) {
 
 /**
  * Thêm khoa / viện mới
+ * mo_ta bind cuối cùng
  * @return bool true nếu thành công, false nếu thất bại
  */
-function addKhoa($ten_khoa, $mo_ta, $truong_khoa, $sdt_lien_he, $email_lien_he) {
+function addKhoa($ten_khoa, $truong_khoa, $sdt_lien_he, $email_lien_he, $mo_ta) {
     $conn = getDbConnection();
 
     $sql = "INSERT INTO khoa (
                 ten_khoa,
-                mo_ta,
                 truong_khoa,
                 sdt_lien_he,
-                email_lien_he
+                email_lien_he,
+                mo_ta
             )
             VALUES (?, ?, ?, ?, ?)";
 
     $stmt = mysqli_prepare($conn, $sql);
     if (!$stmt) {
-        // Nếu tới đây bị die nghĩa là bảng/column chưa khớp với DB
         die("Lỗi prepare addKhoa(): " . mysqli_error($conn));
     }
 
@@ -92,10 +93,10 @@ function addKhoa($ten_khoa, $mo_ta, $truong_khoa, $sdt_lien_he, $email_lien_he) 
         $stmt,
         "sssss",
         $ten_khoa,
-        $mo_ta,
         $truong_khoa,
         $sdt_lien_he,
-        $email_lien_he
+        $email_lien_he,
+        $mo_ta
     );
 
     $ok = mysqli_stmt_execute($stmt);
@@ -108,17 +109,18 @@ function addKhoa($ten_khoa, $mo_ta, $truong_khoa, $sdt_lien_he, $email_lien_he) 
 
 /**
  * Cập nhật thông tin khoa
+ * mo_ta nằm cuối cùng
  * @return bool true nếu thành công
  */
-function updateKhoa($id, $ten_khoa, $mo_ta, $truong_khoa, $sdt_lien_he, $email_lien_he) {
+function updateKhoa($id, $ten_khoa, $truong_khoa, $sdt_lien_he, $email_lien_he, $mo_ta) {
     $conn = getDbConnection();
 
     $sql = "UPDATE khoa
             SET ten_khoa      = ?,
-                mo_ta         = ?,
                 truong_khoa   = ?,
                 sdt_lien_he   = ?,
-                email_lien_he = ?
+                email_lien_he = ?,
+                mo_ta         = ?
             WHERE id = ?";
 
     $stmt = mysqli_prepare($conn, $sql);
@@ -130,10 +132,10 @@ function updateKhoa($id, $ten_khoa, $mo_ta, $truong_khoa, $sdt_lien_he, $email_l
         $stmt,
         "sssssi",
         $ten_khoa,
-        $mo_ta,
         $truong_khoa,
         $sdt_lien_he,
         $email_lien_he,
+        $mo_ta,
         $id
     );
 
@@ -147,7 +149,6 @@ function updateKhoa($id, $ten_khoa, $mo_ta, $truong_khoa, $sdt_lien_he, $email_l
 
 /**
  * Xóa một khoa / viện
- * @return bool true nếu thành công
  */
 function deleteKhoa($id) {
     $conn = getDbConnection();

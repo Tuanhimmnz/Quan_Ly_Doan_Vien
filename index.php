@@ -8,54 +8,53 @@ session_start();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý Đoàn viên - FITDNU</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
 </head>
 
 <body>
-    <div class="container-fluid">
-        <div class="row vh-100">
-           
-            <div class="col-md-4 d-flex flex-column justify-content-center align-items-center bg-white">
-                <img src="./images/logo-doan.webp" alt="Logo" class="mb-3" style="max-width:120px;">
-                <h6 class="text-center fw-bold text-primary mb-4">
-                    Quản Lý Đoàn Viên
-                </h6>
+    <div class="auth-wrapper">
+        <section class="d-flex align-items-center" style="min-height:100vh; padding:24px;">
+            <div class="login-panel">
+                <div class="brand-login mb-2">
+                    <img src="images/logo-doan.webp" alt="Logo">
+                    <div style="color:#0072BC; font-weight:600;">Quản Lý Đoàn Viên</div>
+                </div>
 
-                <form action="./handle/login_process.php" method="POST" style="width:80%; max-width:300px;">
-                    <h6 class="text-primary mb-3 text-center">THÔNG TIN ĐĂNG NHẬP</h6>
+                <h3 class="text-center" style="margin:8px 0 16px; color:#0072BC;">Thông tin đăng nhập</h3>
 
+                <form action="handle/login_process.php" method="POST" novalidate>
                     <div class="mb-3">
-                        <input type="text" name="username" class="form-control" placeholder="Tài khoản" required>
+                        <label for="username">Tài khoản</label>
+                        <input type="text" name="username" id="username" class="form-control" placeholder="Nhập tài khoản" required autofocus>
                     </div>
                     <div class="mb-3">
-                        <input type="password" name="password" class="form-control" placeholder="Mật khẩu" required>
+                        <label for="password">Mật khẩu</label>
+                        <input type="password" name="password" id="password" class="form-control" placeholder="Nhập mật khẩu" required>
                     </div>
 
                     <?php if (isset($_SESSION['error'])): ?>
-                        <div class="alert alert-danger py-2">
+                        <div class="alert alert-danger">
                             <?= $_SESSION['error']; unset($_SESSION['error']); ?>
                         </div>
                     <?php endif; ?>
 
                     <?php if (isset($_SESSION['success'])): ?>
-                        <div class="alert alert-success py-2">
+                        <div class="alert alert-success">
                             <?= $_SESSION['success']; unset($_SESSION['success']); ?>
                         </div>
                     <?php endif; ?>
 
-                    <div class="text-center">
-                        <button type="submit" name="login" class="btn btn-primary w-100">Đăng nhập</button>
-                    </div>
+                    <button type="submit" name="login" class="btn btn-primary" style="width:100%;">Đăng nhập</button>
                 </form>
-            </div>
 
-            <!-- CỘT BÊN PHẢI: ẢNH NỀN -->
-            <div class="col-md-8 d-none d-md-block p-0">
-                <img src="./images/bg-tnvn.webp"
-                     alt="Ảnh nền"
-                     class="w-100 h-100"
-                     style="object-fit: cover;">
+                <p class="text-center text-muted" style="margin-top:12px;">FITDNU • Hệ thống quản lý đoàn viên</p>
             </div>
+        </section>
+        <div class="login-hero">
+            <img src="images/bg-tnvn.webp" alt="Ảnh nền">
         </div>
     </div>
 
@@ -63,6 +62,6 @@ session_start();
         Copyright © 2025
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/app.js"></script>
 </body>
 </html>

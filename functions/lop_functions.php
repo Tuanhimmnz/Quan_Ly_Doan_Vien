@@ -2,109 +2,93 @@
 require_once __DIR__ . '/db_connection.php';
 
 /**
- * Lấy danh sách lớp cho dropdown (id, ma_lop, ten_lop)
- */
-function getAllLopForDropdown() {
-    $conn = getDbConnection();
-
-    $sql = "SELECT id, ma_lop, ten_lop
-            FROM lop
-            ORDER BY ten_lop ASC";
-
-    $result = mysqli_query($conn, $sql);
-
-    $list = [];
-    if ($result && mysqli_num_rows($result) > 0) {
-        while ($row = mysqli_fetch_assoc($result)) {
-            $list[] = $row;
-        }
-    }
-
-    mysqli_close($conn);
-    return $list;
-}
-
-/**
- * Lấy tất cả lớp để in ra trang lop.php
- * JOIN khoa để có tên khoa
+ * Lấy toàn bộ danh sách lớp để hiển thị
  */
 function getAllLop() {
     $conn = getDbConnection();
 
-    $sql = "SELECT l.id,
-                   l.ma_lop,
-                   l.ten_lop,
-                   l.khoa_id,
-                   l.co_van,
-                   l.bi_thu,
-                   k.ten_khoa
-            FROM lop l
-            LEFT JOIN khoa k ON l.khoa_id = k.id
-            ORDER BY l.id ASC";
+    $sql = "
+        SELECT l.id,
+               l.ma_lop,
+               l.ten_lop,
+               l.khoa_id,
+               k.ten_khoa,
+               l.co_van,
+               l.bi_thu
+        FROM lop l
+        LEFT JOIN khoa k ON l.khoa_id = k.id
+        ORDER BY l.id ASC
+    ";
 
     $result = mysqli_query($conn, $sql);
 
-    $list = [];
+    $rows = [];
     if ($result && mysqli_num_rows($result) > 0) {
-        while ($row = mysqli_fetch_assoc($result)) {
-            $list[] = $row;
+        while ($r = mysqli_fetch_assoc($result)) {
+            $rows[] = $r;
         }
     }
 
     mysqli_close($conn);
-    return $list;
+    return $rows;
 }
 
 /**
- * Lấy thông tin 1 lớp theo ID
+ * Lấy thông tin 1 lớp theo id
  */
 function getLopById($id) {
     $conn = getDbConnection();
+    $id = (int)$id;
 
-    $sql = "SELECT id, ma_lop, ten_lop, khoa_id, co_van, bi_thu
-            FROM lop
-            WHERE id = ?
-            LIMIT 1";
+    $sql = "
+        SELECT l.id,
+               l.ma_lop,
+               l.ten_lop,
+               l.khoa_id,
+               l.co_van,
+               l.bi_thu
+        FROM lop l
+        WHERE l.id = $id
+        LIMIT 1
+    ";
 
-    $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, "i", $id);
-    mysqli_stmt_execute($stmt);
+    $result = mysqli_query($conn, $sql);
 
-    $res = mysqli_stmt_get_result($stmt);
-    $row = null;
-    if ($res && mysqli_num_rows($res) > 0) {
-        $row = mysqli_fetch_assoc($res);
+    $lop = null;
+    if ($result && mysqli_num_rows($result) > 0) {
+        $lop = mysqli_fetch_assoc($result);
     }
 
-    mysqli_stmt_close($stmt);
     mysqli_close($conn);
-    return $row;
+    return $lop;
 }
 
 /**
  * Thêm lớp mới
  */
-function addLop($ma_lop, $ten_lop, $khoa_id, $co_van, $bi_thu) {
+function createLop($ma_lop, $ten_lop, $khoa_id, $co_van, $bi_thu) {
     $conn = getDbConnection();
 
-    $sql = "INSERT INTO lop (ma_lop, ten_lop, khoa_id, co_van, bi_thu)
-            VALUES (?, ?, ?, ?, ?)";
+    $ma_lop  = mysqli_real_escape_string($conn, $ma_lop);
+    $ten_lop = mysqli_real_escape_string($conn, $ten_lop);
+    $co_van  = mysqli_real_escape_string($conn, $co_van);
+    $bi_thu  = mysqli_real_escape_string($conn, $bi_thu);
+    $khoa_id = (int)$khoa_id;
 
-    $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, "ssiss",
-        $ma_lop,
-        $ten_lop,
-        $khoa_id,
-        $co_van,
-        $bi_thu
-    );
+    $sql = "
+        INSERT INTO lop (ma_lop, ten_lop, khoa_id, co_van, bi_thu)
+        VALUES ('$ma_lop', '$ten_lop', $khoa_id, '$co_van', '$bi_thu')
+    ";
 
-    $ok = mysqli_stmt_execute($stmt);
+    $ok = mysqli_query($conn, $sql);
 
-    mysqli_stmt_close($stmt);
+    $newId = null;
+    if ($ok) {
+        $newId = mysqli_insert_id($conn);
+    }
+
     mysqli_close($conn);
-
-    return $ok;
+    return $newId;
 }
 
 /**
@@ -113,59 +97,56 @@ function addLop($ma_lop, $ten_lop, $khoa_id, $co_van, $bi_thu) {
 function updateLop($id, $ma_lop, $ten_lop, $khoa_id, $co_van, $bi_thu) {
     $conn = getDbConnection();
 
-    $sql = "UPDATE lop
-            SET ma_lop = ?,
-                ten_lop = ?,
-                khoa_id = ?,
-                co_van = ?,
-                bi_thu = ?
-            WHERE id = ?";
+    $id      = (int)$id;
+    $khoa_id = (int)$khoa_id;
 
-    $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, "ssissi",
-        $ma_lop,
-        $ten_lop,
-        $khoa_id,
-        $co_van,
-        $bi_thu,
-        $id
-    );
+    $ma_lop  = mysqli_real_escape_string($conn, $ma_lop);
+    $ten_lop = mysqli_real_escape_string($conn, $ten_lop);
+    $co_van  = mysqli_real_escape_string($conn, $co_van);
+    $bi_thu  = mysqli_real_escape_string($conn, $bi_thu);
 
-    $ok = mysqli_stmt_execute($stmt);
+    $sql = "
+        UPDATE lop
+        SET ma_lop  = '$ma_lop',
+            ten_lop = '$ten_lop',
+            khoa_id = $khoa_id,
+            co_van  = '$co_van',
+            bi_thu  = '$bi_thu'
+        WHERE id = $id
+        LIMIT 1
+    ";
 
-    mysqli_stmt_close($stmt);
+    $ok = mysqli_query($conn, $sql);
+
     mysqli_close($conn);
-
     return $ok;
 }
 
 /**
- * Xóa lớp
+ * Xoá lớp theo id
  */
 function deleteLop($id) {
     $conn = getDbConnection();
+    $id = (int)$id;
 
-    $sql = "DELETE FROM lop WHERE id = ?";
-    $stmt = mysqli_prepare($conn, $sql);
+    $sql = "DELETE FROM lop WHERE id = $id LIMIT 1";
+    $ok = mysqli_query($conn, $sql);
 
-    mysqli_stmt_bind_param($stmt, "i", $id);
-    $ok = mysqli_stmt_execute($stmt);
-
-    mysqli_stmt_close($stmt);
     mysqli_close($conn);
-
     return $ok;
 }
 
 /**
- * Lấy danh sách khoa để đổ vào dropdown khi tạo/sửa lớp
+ * Lấy danh sách khoa để đổ vào <select>
  */
 function getAllKhoaForDropdown() {
     $conn = getDbConnection();
 
-    $sql = "SELECT id, ten_khoa
-            FROM khoa
-            ORDER BY ten_khoa ASC";
+    $sql = "
+        SELECT id, ten_khoa
+        FROM khoa
+        ORDER BY ten_khoa ASC
+    ";
 
     $result = mysqli_query($conn, $sql);
 
@@ -179,4 +160,24 @@ function getAllKhoaForDropdown() {
     mysqli_close($conn);
     return $list;
 }
-?>
+function getAllLopForDropdown() {
+    $conn = getDbConnection();
+
+    $sql = "
+        SELECT id, ma_lop, ten_lop
+        FROM lop
+        ORDER BY ma_lop ASC, ten_lop ASC
+    ";
+
+    $result = mysqli_query($conn, $sql);
+
+    $list = [];
+    if ($result && mysqli_num_rows($result) > 0) {
+        while ($row = mysqli_fetch_assoc($result)) {
+            $list[] = $row;
+        }
+    }
+
+    mysqli_close($conn);
+    return $list;
+}

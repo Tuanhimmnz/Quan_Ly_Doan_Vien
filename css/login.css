@@ -1,0 +1,71 @@
+:root {
+  --primary: #0d6efd;
+  --panel-bg: rgba(255, 255, 255, 0.82);
+  --panel-border: rgba(13, 110, 253, 0.08);
+}
+
+html, body {
+  height: 100%;
+}
+
+.auth-wrapper {
+  background: radial-gradient(1200px 600px at 0% 0%, #eef3ff 0%, #f7faff 35%, #ffffff 100%);
+}
+
+.login-panel {
+  width: min(420px, 92%);
+  background: var(--panel-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--panel-border);
+  border-radius: 18px;
+}
+
+.brand img {
+  max-width: 96px;
+  height: auto;
+}
+
+.form-floating > .form-control {
+  border-radius: 12px;
+}
+
+.btn {
+  transition: all .2s ease;
+  border-radius: 12px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #4676ff, var(--primary));
+  border: 0;
+  box-shadow: 0 8px 20px rgba(13, 110, 253, 0.25);
+}
+
+.btn-primary:hover {
+  filter: brightness(1.03);
+  transform: translateY(-1px);
+}
+
+.alert {
+  border-radius: 12px;
+  padding: .5rem .75rem;
+}
+
+.right-hero {
+  position: relative;
+}
+
+.right-hero img {
+  object-fit: cover;
+}
+
+.right-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(13, 110, 253, .35), rgba(13, 110, 253, 0) 60%);
+}
+
+@media (max-width: 575.98px) {
+  .login-panel { width: 94%; }
+}
