@@ -1,0 +1,80 @@
+/* === Lightweight UI kit injected by ChatGPT === */
+:root{
+  --ui-font: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+  --ui-bg: #ffffff;
+  --ui-fg: #14171a;
+  --ui-soft: #f3f4f6;
+  --ui-border: #e5e7eb;
+  --ui-primary: #2563eb;
+  --ui-primary-ink: #ffffff;
+  --ui-focus: #93c5fd;
+  --ui-radius: 10px;
+  --ui-shadow: 0 6px 18px rgba(0,0,0,.06);
+}
+*{box-sizing:border-box}
+html { scroll-behavior: smooth; }
+body{
+  font-family: var(--ui-font);
+  color: var(--ui-fg);
+  background: var(--ui-bg);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+img{max-width:100%;display:block}
+a{color:var(--ui-primary);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* Navigation polish */
+nav ul, .nav, .navbar-nav{list-style:none;padding:0;margin:0;display:flex;gap:.75rem;align-items:center}
+nav li{display:block}
+nav a{position:relative;padding:.5rem .75rem;border-radius:8px;transition:all .25s ease}
+nav a:hover{background:var(--ui-soft)}
+nav a:focus{outline:2px solid var(--ui-focus);outline-offset:2px}
+
+/* Buttons */
+.btn, button, input[type="submit"], .button{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:.7rem 1rem;border:1px solid var(--ui-border);
+  background:#fff;border-radius:var(--ui-radius);cursor:pointer;
+  transition:transform .06s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease;
+}
+.btn:hover, button:hover, input[type="submit"]:hover, .button:hover{
+  box-shadow: var(--ui-shadow);
+}
+.btn:active, button:active, input[type="submit"]:active, .button:active{transform:translateY(1px)}
+.btn-primary{background:var(--ui-primary);border-color:var(--ui-primary);color:var(--ui-primary-ink)}
+.btn-primary:hover{filter:brightness(.98)}
+.btn-primary:focus{outline:2px solid var(--ui-focus);outline-offset:2px}
+
+/* Forms */
+.ui-form{max-width: 960px}
+.ui-form .form-group{margin-bottom:1rem}
+.form-label, label{display:block;margin-bottom:.35rem;font-weight:600}
+.form-hint{display:block;font-size:.875rem;color:#6b7280;margin-top:.25rem}
+.form-control, input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]), select, textarea{
+  width:100%;padding:.7rem .85rem;border:1px solid var(--ui-border);border-radius:12px;
+  background:#fff;transition:border-color .2s ease, box-shadow .2s ease, background .2s ease;
+}
+.form-control:focus, input:focus, select:focus, textarea:focus{
+  border-color: var(--ui-focus); box-shadow: 0 0 0 4px rgba(147,197,253,.35); outline: none;
+}
+input::placeholder, textarea::placeholder{color:#9ca3af}
+
+/* Cards */
+.card{background:#fff;border:1px solid var(--ui-border);border-radius:16px;padding:1rem;box-shadow: var(--ui-shadow)}
+
+/* Reveal-on-scroll animations */
+.reveal-on-scroll,
+.reveal{opacity:0;transform: translateY(16px); transition: opacity .6s ease, transform .6s ease; will-change: opacity, transform}
+.reveal-on-scroll.is-visible,
+.reveal.is-visible{opacity:1;transform:none}
+@media (prefers-reduced-motion: reduce){
+  .reveal-on-scroll,
+  .reveal{opacity:1 !important; transform:none !important; transition:none !important}
+}
+
+/* Utility spacing */
+.container{padding-left:1rem;padding-right:1rem}
+.section{padding: 3rem 0}
+/* End UI kit */

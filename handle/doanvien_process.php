@@ -1,5 +1,11 @@
 <?php
+// [FITDNU-ADD] Protect and enable audit logging
+require_once __DIR__ . '/../functions/auth.php';
+require_once __DIR__ . '/../functions/audit_functions.php';
 require_once __DIR__ . '/../functions/doanvien_functions.php';
+require_once __DIR__ . '/../functions/lop_functions.php';
+require_once __DIR__ . '/../functions/lichsu_functions.php';
+checkLogin(__DIR__ . '/../index.php');
 
 // xác định action
 $action = '';
@@ -28,6 +34,18 @@ switch ($action) {
  * Dùng cho trang danh sách
  */
 function handleGetAllDoanVien() {
+    // [FITDNU-ADD] Support unified search via GET params
+    $hasFilters = isset($_GET['q']) || isset($_GET['khoa']) || isset($_GET['lop']) || isset($_GET['trang_thai']) || isset($_GET['chuc_vu']);
+    if ($hasFilters) {
+        $params = [
+            'q' => $_GET['q'] ?? '',
+            'khoa' => $_GET['khoa'] ?? '',
+            'lop' => $_GET['lop'] ?? '',
+            'trang_thai' => $_GET['trang_thai'] ?? '',
+            'chuc_vu' => $_GET['chuc_vu'] ?? ''
+        ];
+        return searchDoanVienAdvanced($params);
+    }
     return getAllDoanVien();
 }
 
@@ -63,7 +81,7 @@ function handleCreateDoanVien() {
         exit();
     }
 
-    $ok = addDoanVien(
+    $newId = addDoanVien(
         $ma_sv,
         $ho_ten,
         $ngay_sinh,
@@ -76,7 +94,25 @@ function handleCreateDoanVien() {
         $ngay_vao_doan
     );
 
-    if ($ok) {
+    if ($newId) {
+        // [FITDNU-ADD] Audit create with new entity id
+        $user = getCurrentUser();
+        $new = getDoanVienByMaSv($ma_sv);
+        $lopTen = '';
+        if ($new && isset($new['lop_id'])) {
+            $lop = getLopById((int)$new['lop_id']);
+            $lopTen = $lop['ten_lop'] ?? '';
+        }
+        // Ghi lịch sử tham gia
+        $startDate = $ngay_vao_doan ?: date('Y-m-d');
+        addLichSuIfNotExists((int)$newId, $startDate, null, 'Tạo thủ công', 'Tạo đoàn viên mới', null);
+        log_action((int)$user['id'], 'CREATE', 'doanvien', (int)($new['id'] ?? 0), null, [
+            'ma_sv' => $ma_sv,
+            'ho_ten' => $ho_ten,
+            'lop_id' => (int)$lop_id,
+            'lop_ten' => $lopTen,
+            'trang_thai' => $trang_thai
+        ]);
         header("Location: ../views/doanvien.php?success=Thêm đoàn viên thành công");
     } else {
         header("Location: ../views/doanvien/create_doanvien.php?error=Có lỗi khi thêm đoàn viên");
@@ -131,6 +167,15 @@ function handleEditDoanVien() {
     );
 
     if ($ok) {
+        // [FITDNU-ADD] Audit update with before/after, include lớp cũ/mới
+        $user = getCurrentUser();
+        $before = $current;
+        $after = getDoanVienById($id);
+        $lopBefore = $before && isset($before['lop_id']) ? (getLopById((int)$before['lop_id'])['ten_lop'] ?? '') : '';
+        $lopAfter  = $after && isset($after['lop_id'])  ? (getLopById((int)$after['lop_id'])['ten_lop'] ?? '')   : '';
+        $before['lop_ten'] = $lopBefore;
+        $after['lop_ten']  = $lopAfter;
+        log_action((int)$user['id'], 'UPDATE', 'doanvien', (int)$id, $before, $after);
         header("Location: ../views/doanvien.php?success=Cập nhật đoàn viên thành công");
     } else {
         header("Location: ../views/doanvien/edit_doanvien.php?id=".$id."&error=Cập nhật thất bại");
@@ -158,6 +203,11 @@ function handleDeleteDoanVien() {
     $ok = deleteDoanVien($id);
 
     if ($ok) {
+        // [FITDNU-ADD] Audit delete with before snapshot
+        $user = getCurrentUser();
+        $lopTen = $current && isset($current['lop_id']) ? (getLopById((int)$current['lop_id'])['ten_lop'] ?? '') : '';
+        $current['lop_ten'] = $lopTen;
+        log_action((int)$user['id'], 'DELETE', 'doanvien', (int)$id, $current, null);
         header("Location: ../views/doanvien.php?success=Xóa đoàn viên thành công");
     } else {
         header("Location: ../views/doanvien.php?error=Xóa đoàn viên thất bại");

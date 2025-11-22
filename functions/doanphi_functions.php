@@ -15,7 +15,8 @@ function getAllDoanPhi() {
                 dv.ho_ten,
                 dp.nam_hoc,
                 dp.da_nop,
-                dp.ngay_nop
+                dp.ngay_nop,
+                dp.so_tien_nop
             FROM doanphi dp
             LEFT JOIN doanvien dv ON dp.doanvien_id = dv.id
             ORDER BY dp.nam_hoc DESC, dv.ho_ten ASC";
@@ -33,6 +34,81 @@ function getAllDoanPhi() {
     return $list;
 }
 
+// [FITDNU-ADD] Lấy danh sách năm học (distinct) từ bảng doanphi
+function getAllNamHocDoanPhi() {
+    $conn = getDbConnection();
+    $sql = "SELECT DISTINCT nam_hoc FROM doanphi ORDER BY nam_hoc DESC";
+    $result = mysqli_query($conn, $sql);
+    $years = [];
+    if ($result && mysqli_num_rows($result) > 0) {
+        while ($row = mysqli_fetch_assoc($result)) {
+            $years[] = $row['nam_hoc'];
+        }
+    }
+    mysqli_close($conn);
+    return $years;
+}
+
+// [FITDNU-ADD] Lấy danh sách đoàn phí theo năm học
+function getDoanPhiByYear($nam_hoc) {
+    $conn = getDbConnection();
+    $sql = "SELECT 
+                dp.id,
+                dp.doanvien_id,
+                dv.ma_sv,
+                dv.ho_ten,
+                dp.nam_hoc,
+                dp.da_nop,
+                dp.ngay_nop,
+                dp.so_tien_nop
+            FROM doanphi dp
+            LEFT JOIN doanvien dv ON dp.doanvien_id = dv.id
+            WHERE dp.nam_hoc = ?
+            ORDER BY dv.ho_ten ASC";
+    $stmt = mysqli_prepare($conn, $sql);
+    if (!$stmt) {
+        die("Lỗi prepare getDoanPhiByYear(): " . mysqli_error($conn));
+    }
+    mysqli_stmt_bind_param($stmt, 's', $nam_hoc);
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+    $list = [];
+    if ($res && mysqli_num_rows($res) > 0) {
+        while ($row = mysqli_fetch_assoc($res)) {
+            $list[] = $row;
+        }
+    }
+    mysqli_stmt_close($stmt);
+    mysqli_close($conn);
+    return $list;
+}
+
+// [FITDNU-ADD] Tìm kiếm đoàn phí theo q (ma_sv/ho_ten) và trạng thái, kèm lọc năm_học tùy chọn
+function searchDoanPhi($params = []) {
+    $conn = getDbConnection();
+    $q = trim($params['q'] ?? '');
+    $nam_hoc = trim($params['nam_hoc'] ?? '');
+    $paid = trim($params['paid'] ?? ''); // '1' or '0' or ''
+    $sql = "SELECT dp.id, dp.doanvien_id, dv.ma_sv, dv.ho_ten, dp.nam_hoc, dp.da_nop, dp.ngay_nop, dp.so_tien_nop
+            FROM doanphi dp
+            LEFT JOIN doanvien dv ON dp.doanvien_id = dv.id
+            WHERE 1=1";
+    $types = '';
+    $binds = [];
+    if ($q !== '') { $like = "%$q%"; $sql .= " AND (dv.ma_sv LIKE ? OR dv.ho_ten LIKE ?)"; $types.='ss'; array_push($binds, $like, $like); }
+    if ($nam_hoc !== '') { $sql .= " AND dp.nam_hoc = ?"; $types.='s'; $binds[] = $nam_hoc; }
+    if ($paid === '0' || $paid === '1') { $sql .= " AND dp.da_nop = ?"; $types.='i'; $binds[] = (int)$paid; }
+    $sql .= " ORDER BY dp.nam_hoc DESC, dv.ho_ten ASC";
+    $stmt = mysqli_prepare($conn, $sql);
+    if ($types !== '') mysqli_stmt_bind_param($stmt, $types, ...$binds);
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+    $list = [];
+    while ($res && $row = mysqli_fetch_assoc($res)) $list[] = $row;
+    mysqli_stmt_close($stmt); mysqli_close($conn);
+    return $list;
+}
+
 /**
  * Lấy thông tin 1 bản ghi đoàn phí theo ID
  * Dùng khi muốn load lên form sửa (edit)
@@ -46,6 +122,7 @@ function getDoanPhiById($id) {
                 dp.nam_hoc,
                 dp.da_nop,
                 dp.ngay_nop,
+                dp.so_tien_nop,
                 dv.ma_sv,
                 dv.ho_ten
             FROM doanphi dp
@@ -113,16 +190,17 @@ function checkDoanPhiExists($doanvien_id, $nam_hoc) {
  * Thêm bản ghi đoàn phí mới
  * Dùng khi submit form "Thêm đoàn phí"
  */
-function addDoanPhi($doanvien_id, $nam_hoc, $da_nop, $ngay_nop) {
+function addDoanPhi($doanvien_id, $nam_hoc, $da_nop, $ngay_nop, $so_tien_nop) {
     $conn = getDbConnection();
 
     $sql = "INSERT INTO doanphi (
                 doanvien_id,
                 nam_hoc,
                 da_nop,
-                ngay_nop
+                ngay_nop,
+                so_tien_nop
             )
-            VALUES (?, ?, ?, ?)";
+            VALUES (?, ?, ?, ?, ?)";
 
     $stmt = mysqli_prepare($conn, $sql);
     if (!$stmt) {
@@ -132,38 +210,43 @@ function addDoanPhi($doanvien_id, $nam_hoc, $da_nop, $ngay_nop) {
     // Chuẩn hóa input
     // da_nop từ form là chuỗi "0"/"1" => ép int
     $da_nop_int   = (int)$da_nop;
-
+    
     // ngày nộp có thể để trống => NULL
     $ngay_nop_val = ($ngay_nop === '' ? NULL : $ngay_nop);
+    // số tiền nộp: nếu null => 0
+    $so_tien_val  = ($so_tien_nop === '' || $so_tien_nop === null) ? 0 : (float)$so_tien_nop;
 
     mysqli_stmt_bind_param(
         $stmt,
-        "isis",
+        "isisd",
         $doanvien_id,
         $nam_hoc,
         $da_nop_int,
-        $ngay_nop_val
+        $ngay_nop_val,
+        $so_tien_val
     );
 
     $ok = mysqli_stmt_execute($stmt);
+    $newId = $ok ? mysqli_insert_id($conn) : false;
 
     mysqli_stmt_close($stmt);
     mysqli_close($conn);
 
-    return $ok;
+    return $newId; // [FITDNU-ADD] return inserted ID on success
 }
 
 /**
  * Cập nhật thông tin đoàn phí
  */
-function updateDoanPhi($id, $doanvien_id, $nam_hoc, $da_nop, $ngay_nop) {
+function updateDoanPhi($id, $doanvien_id, $nam_hoc, $da_nop, $ngay_nop, $so_tien_nop) {
     $conn = getDbConnection();
 
     $sql = "UPDATE doanphi
             SET doanvien_id = ?,
                 nam_hoc     = ?,
                 da_nop      = ?,
-                ngay_nop    = ?
+                ngay_nop    = ?,
+                so_tien_nop = ?
             WHERE id = ?";
 
     $stmt = mysqli_prepare($conn, $sql);
@@ -173,15 +256,17 @@ function updateDoanPhi($id, $doanvien_id, $nam_hoc, $da_nop, $ngay_nop) {
 
     $da_nop_int   = (int)$da_nop;
     $ngay_nop_val = ($ngay_nop === '' ? NULL : $ngay_nop);
+    $so_tien_val  = ($so_tien_nop === '' || $so_tien_nop === null) ? 0 : (float)$so_tien_nop;
     $id_int       = (int)$id;
 
     mysqli_stmt_bind_param(
         $stmt,
-        "isisi",
+        "isisdi",
         $doanvien_id,
         $nam_hoc,
         $da_nop_int,
         $ngay_nop_val,
+        $so_tien_val,
         $id_int
     );
 

@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../../functions/auth.php';
 checkLogin(__DIR__ . '/../../index.php');
 require_once __DIR__ . '/../../functions/doanvien_functions.php';
+$presetLoai = $_GET['loai'] ?? 'Khen thưởng';
 ?>
 
 <!DOCTYPE html>
@@ -10,11 +11,13 @@ require_once __DIR__ . '/../../functions/doanvien_functions.php';
     <meta charset="UTF-8">
     <title>Thêm đánh giá đoàn viên</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/ui.css">
+    <link rel="stylesheet" href="../../assets/css/style.css">
 </head>
 
 <body>
-<div class="container mt-4">
-    <h3 class="text-center mb-4">THÊM ĐÁNH GIÁ ĐOÀN VIÊN</h3>
+<div class="container mt-4 reveal-on-scroll">
+    <h3 class="text-center mb-4">THÊM <?= strtoupper(htmlspecialchars($presetLoai)) ?></h3>
 
     <?php
     // Hiển thị thông báo lỗi nếu có
@@ -25,12 +28,12 @@ require_once __DIR__ . '/../../functions/doanvien_functions.php';
 
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <form action="../../handle/danhgia_process.php" method="POST">
+            <form action="../../handle/danhgia_process.php" method="POST" class="ui-form">
                 <input type="hidden" name="action" value="create">
 
                 <div class="mb-3">
                     <label for="doanvien_id" class="form-label">Chọn đoàn viên</label>
-                    <select name="doanvien_id" id="doanvien_id" class="form-select" required>
+                    <select name="doanvien_id" id="doanvien_id" class="form-select form-control" required>
                         <option value="">-- Chọn đoàn viên --</option>
                         <?php
                         $doanviens = getAllDoanVien();
@@ -44,35 +47,32 @@ require_once __DIR__ . '/../../functions/doanvien_functions.php';
                 </div>
 
                 <div class="mb-3">
-                    <label for="nam_hoc" class="form-label">Năm học</label>
-                    <input type="text" name="nam_hoc" id="nam_hoc" class="form-control" placeholder="VD: 2024-2025" required>
-                </div>
-
-                <div class="mb-3">
-                    <label for="xep_loai" class="form-label">Xếp loại đoàn viên</label>
-                    <select name="xep_loai" id="xep_loai" class="form-select" required>
-                        <option value="">-- Chọn xếp loại --</option>
-                        <option value="Xuất sắc">Xuất sắc</option>
-                        <option value="Tốt">Tốt</option>
-                        <option value="Khá">Khá</option>
-                        <option value="Trung bình">Trung bình</option>
-                        <option value="Yếu">Yếu</option>
+                    <label for="loai" class="form-label">Loại</label>
+                    <select name="loai" id="loai" class="form-select form-control" required>
+                        <option value="">-- Chọn loại --</option>
+                        <option value="Khen thưởng" <?= ($presetLoai === 'Khen thưởng') ? 'selected' : '' ?>>Khen thưởng</option>
+                        <option value="Kỷ luật" <?= ($presetLoai === 'Kỷ luật') ? 'selected' : '' ?>>Kỷ luật</option>
                     </select>
                 </div>
 
                 <div class="mb-3">
-                    <label for="khen_thuong" class="form-label">Khen thưởng</label>
-                    <input type="text" name="khen_thuong" id="khen_thuong" class="form-control" placeholder="VD: Giấy khen đoàn viên xuất sắc">
+                    <label for="mo_ta" class="form-label">Mô tả</label>
+                    <textarea name="mo_ta" id="mo_ta" class="form-control" rows="2" placeholder="Tóm tắt quyết định"></textarea>
                 </div>
 
                 <div class="mb-3">
-                    <label for="ky_luat" class="form-label">Kỷ luật</label>
-                    <input type="text" name="ky_luat" id="ky_luat" class="form-control" placeholder="VD: Không có">
+                    <label for="ngay_quyet_dinh" class="form-label">Ngày quyết định</label>
+                    <input type="date" name="ngay_quyet_dinh" id="ngay_quyet_dinh" class="form-control">
                 </div>
 
                 <div class="mb-3">
-                    <label for="ghi_chu" class="form-label">Ghi chú</label>
-                    <textarea name="ghi_chu" id="ghi_chu" class="form-control" rows="3" placeholder="Thêm nhận xét, góp ý..."></textarea>
+                    <label for="noi_dung" class="form-label">Nội dung</label>
+                    <textarea name="noi_dung" id="noi_dung" class="form-control" rows="3" placeholder="Chi tiết khen thưởng / kỷ luật"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="trang_thai" class="form-label">Trạng thái</label>
+                    <input type="text" name="trang_thai" id="trang_thai" class="form-control" placeholder="Đã ban hành / Dự thảo...">
                 </div>
 
                 <div class="d-flex justify-content-between">
@@ -84,6 +84,7 @@ require_once __DIR__ . '/../../functions/doanvien_functions.php';
     </div>
 </div>
 
+<script src="../../assets/js/ui.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

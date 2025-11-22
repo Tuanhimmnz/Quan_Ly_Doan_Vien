@@ -4,7 +4,7 @@ checkLogin(__DIR__ . '/../../index.php');
 $pageTitle = 'Thêm Khoa / Viện mới';
 require __DIR__ . '/../../includes/header.php';
 ?>
-<div class="container mt-3">
+<div class="container mt-3 reveal-on-scroll">
     <div class="row justify-content-center">
         <div class="col-md-6">
 
@@ -24,7 +24,7 @@ require __DIR__ . '/../../includes/header.php';
                 </div>
             <?php endif; ?>
 
-            <form action="../../handle/khoa_process.php" method="POST">
+            <form action="../../handle/khoa_process.php" method="POST" class="ui-form">
                 <!-- action=create -> handleCreateKhoa() trong khoa_process.php -->
                 <input type="hidden" name="action" value="create">
 

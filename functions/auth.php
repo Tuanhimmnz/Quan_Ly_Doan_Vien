@@ -100,7 +100,6 @@ function authenticateUser($conn, $username, $password) {
     if ($result && mysqli_num_rows($result) > 0) {
         $user = mysqli_fetch_assoc($result);
 
-        // so sánh mật khẩu thô (giống cách bạn lưu 'tuan123')
         if ($password === $user['password']) {
             mysqli_stmt_close($stmt);
             return $user;

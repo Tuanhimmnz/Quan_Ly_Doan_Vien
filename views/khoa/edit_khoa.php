@@ -21,7 +21,7 @@ if (!$khoa) {
 $pageTitle = 'Chỉnh sửa Khoa / Viện';
 require __DIR__ . '/../../includes/header.php';
 ?>
-<div class="container mt-3">
+<div class="container mt-3 reveal-on-scroll">
     <h3 class="mt-3 mb-4 text-center">CHỈNH SỬA KHOA / VIỆN</h3>
 
     <?php if (isset($_GET['error'])): ?>
@@ -34,9 +34,9 @@ require __DIR__ . '/../../includes/header.php';
     <div class="row justify-content-center">
         <div class="col-md-6">
 
-            <div class="card">
+            <div class="card reveal-on-scroll">
                 <div class="card-body">
-                    <form action="../../handle/khoa_process.php" method="POST">
+                    <form action="../../handle/khoa_process.php" method="POST" class="ui-form">
                         <!-- action=edit -> handleEditKhoa() -->
                         <input type="hidden" name="action" value="edit">
                         <input type="hidden" name="id" value="<?= htmlspecialchars($khoa['id']); ?>">

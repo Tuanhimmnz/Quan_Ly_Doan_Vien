@@ -1,6 +1,11 @@
 <?php
-// session_start();
+require_once __DIR__ . '/../functions/auth.php';
+require_once __DIR__ . '/../functions/audit_functions.php';
 require_once __DIR__ . '/../functions/lop_functions.php';
+ensureSessionStarted();
+checkLogin(__DIR__ . '/../index.php');
+$currentUser = getCurrentUser();
+$userId = (int)($currentUser['id'] ?? 0);
 
 // Kiểm tra action được truyền qua URL hoặc POST
 $action = '';
@@ -29,6 +34,15 @@ switch ($action) {
  * Lấy tất cả danh sách lớp
  */
 function handleGetAllLop() {
+    // [FITDNU-ADD] support search via GET
+    $has = isset($_GET['q']) || isset($_GET['khoa']);
+    if ($has) {
+        $params = [
+            'q' => $_GET['q'] ?? '',
+            'khoa' => $_GET['khoa'] ?? ''
+        ];
+        return searchLop($params);
+    }
     return getAllLop();
 }
 
@@ -40,6 +54,7 @@ function handleGetLopById($id) {
  * Xử lý tạo lớp mới
  */
 function handleCreateLop() {
+    global $userId;
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         header("Location: ../views/lop.php?error=Phương thức không hợp lệ");
         exit();
@@ -75,9 +90,16 @@ function handleCreateLop() {
     }
     */
 
-    $success = addLop($ma_lop, $ten_lop, $khoa_id, $co_van, $bi_thu);
+    $newId = createLop($ma_lop, $ten_lop, $khoa_id, $co_van, $bi_thu);
 
-    if ($success) {
+    if ($newId) {
+        log_action($userId, 'CREATE', 'lop', (int)$newId, null, [
+            'ma_lop' => $ma_lop,
+            'ten_lop' => $ten_lop,
+            'khoa_id' => $khoa_id,
+            'co_van' => $co_van,
+            'bi_thu' => $bi_thu
+        ]);
         header("Location: ../views/lop.php?success=Thêm lớp thành công");
     } else {
         header("Location: ../views/lop/create_lop.php?error=Có lỗi xảy ra khi thêm lớp");
@@ -89,6 +111,7 @@ function handleCreateLop() {
  * Xử lý cập nhật lớp
  */
 function handleEditLop() {
+    global $userId;
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         header("Location: ../views/lop.php?error=Phương thức không hợp lệ");
         exit();
@@ -133,9 +156,12 @@ function handleEditLop() {
     }
     */
 
+    $before = $current;
     $success = updateLop($id, $ma_lop, $ten_lop, $khoa_id, $co_van, $bi_thu);
 
     if ($success) {
+        $after = getLopById($id);
+        log_action($userId, 'UPDATE', 'lop', (int)$id, $before, $after);
         header("Location: ../views/lop.php?success=Cập nhật lớp thành công");
     } else {
         header("Location: ../views/lop/edit_lop.php?id=$id&error=Có lỗi xảy ra khi cập nhật lớp");
@@ -147,6 +173,7 @@ function handleEditLop() {
  * Xử lý xóa lớp
  */
 function handleDeleteLop() {
+    global $userId;
     if (!isset($_GET['id'])) {
         header("Location: ../views/lop.php?error=Thiếu ID lớp");
         exit();
@@ -164,6 +191,7 @@ function handleDeleteLop() {
     $success = deleteLop($id);
 
     if ($success) {
+        log_action($userId, 'DELETE', 'lop', (int)$id, $info, null);
         header("Location: ../views/lop.php?success=Xóa lớp thành công");
     } else {
         header("Location: ../views/lop.php?error=Có lỗi xảy ra khi xóa lớp");

@@ -56,18 +56,44 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                 </li>
         
                 <li class="nav-item">
-                    <a class="nav-link <?= ($currentPage === 'danhgia.php') ? 'active fw-bold' : '' ?>"
-                       href="danhgia.php">
-                        Đánh giá đoàn viên
+                    <a class="nav-link <?= ($currentPage === 'khenthuong.php') ? 'active fw-bold' : '' ?>"
+                       href="khenthuong.php">
+                        Khen thưởng
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link <?= ($currentPage === 'kyluat.php') ? 'active fw-bold' : '' ?>"
+                       href="kyluat.php">
+                        Kỷ luật
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link <?= ($currentPage === 'lichsu.php') ? 'active fw-bold' : '' ?>" href="lichsu.php">
+                        Lịch sử tham gia
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link <?= ($currentPage === 'diemrenluyen.php') ? 'active fw-bold' : '' ?>" href="diemrenluyen.php">
+                        Điểm rèn luyện
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link <?= ($currentPage === 'sukien.php') ? 'active fw-bold' : '' ?>" href="sukien.php">
+                        Sự kiện
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link <?= ($currentPage === 'taikhoan.php') ? 'active fw-bold' : '' ?>" href="taikhoan.php">
+                        Tài khoản
                     </a>
                 </li>
                 
-                <li class="nav-item">
-                    <a class="nav-link <?= ($currentPage === 'tracuu.php') ? 'active fw-bold' : '' ?>"
-                       href="tracuu.php">
-                        Tra cứu đoàn viên
-                    </a>
-                </li>
+                <!-- [FITDNU-ADD] Ẩn tra cứu theo yêu cầu -->
 
             </ul>
 

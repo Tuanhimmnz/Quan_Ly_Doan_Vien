@@ -8,10 +8,10 @@ $pageTitle = 'Thêm lớp mới';
 require __DIR__ . '/../../includes/header.php';
 ?>
 
-<div class="container mt-4">
+<div class="container mt-4 reveal-on-scroll">
   <div class="row justify-content-center">
     <div class="col-md-7 col-lg-6">
-      <div class="card">
+      <div class="card reveal-on-scroll">
         <h3 class="mb-4 text-center">THÊM LỚP MỚI</h3>
 
         <?php if (isset($_GET['error'])): ?>
@@ -21,7 +21,7 @@ require __DIR__ . '/../../includes/header.php';
           </div>
         <?php endif; ?>
 
-        <form method="post" action="store_lop.php">
+          <form method="post" action="store_lop.php" class="ui-form">
           <div class="mb-3">
             <label class="form-label">Mã lớp</label>
             <input type="text" class="form-control" name="ma_lop" required>
@@ -32,7 +32,7 @@ require __DIR__ . '/../../includes/header.php';
           </div>
           <div class="mb-3">
             <label class="form-label">Khoa / Viện</label>
-            <select name="khoa_id" class="form-select" required>
+              <select name="khoa_id" class="form-select form-control" required>
               <option value="">-- Chọn khoa / viện --</option>
               <?php foreach ($khoas as $khoa): ?>
                 <option value="<?= htmlspecialchars($khoa['id']) ?>">
@@ -53,7 +53,7 @@ require __DIR__ . '/../../includes/header.php';
             <a href="list_lop.php" class="btn btn-secondary"><i class="fa fa-arrow-left"></i> Quay lại</a>
             <div>
               <button type="reset" class="btn btn-outline-warning me-2">Xoá form</button>
-              <button type="submit" class="btn btn-success"><i class="fa fa-check"></i> Thêm mới</button>
+                <button type="submit" class="btn btn-primary"><i class="fa fa-check"></i> Thêm mới</button>
             </div>
           </div>
         </form>

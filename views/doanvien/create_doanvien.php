@@ -8,10 +8,10 @@ $pageTitle = 'DNU - Thêm đoàn viên mới';
 require __DIR__ . '/../../includes/header.php';
 ?>
 
-<div class="container mt-3">
+<div class="container mt-3 reveal-on-scroll">
   <div class="row justify-content-center">
     <div class="col-md-6">
-      <div class="card">
+      <div class="card reveal-on-scroll">
         <h3 class="mt-3 mb-4 text-center">THÊM ĐOÀN VIÊN MỚI</h3>
 
         <?php if (isset($_GET['error'])): ?>
@@ -21,7 +21,7 @@ require __DIR__ . '/../../includes/header.php';
           </div>
         <?php endif; ?>
 
-        <form action="../../handle/doanvien_process.php" method="POST">
+        <form action="../../handle/doanvien_process.php" method="POST" class="ui-form">
           <input type="hidden" name="action" value="create">
 
           <div class="mb-3">
@@ -40,7 +40,7 @@ require __DIR__ . '/../../includes/header.php';
             </div>
             <div class="mb-3 col-md-6">
               <label for="gioi_tinh" class="form-label">Giới tính</label>
-              <select class="form-select" id="gioi_tinh" name="gioi_tinh">
+                <select class="form-select form-control" id="gioi_tinh" name="gioi_tinh">
                 <option value="">-- Chọn giới tính --</option>
                 <option value="Nam">Nam</option>
                 <option value="Nữ">Nữ</option>
@@ -62,7 +62,7 @@ require __DIR__ . '/../../includes/header.php';
 
           <div class="mb-3">
             <label for="lop_id" class="form-label">Lớp / Chi đoàn</label>
-            <select class="form-select" id="lop_id" name="lop_id" required>
+              <select class="form-select form-control" id="lop_id" name="lop_id" required>
               <option value="">-- Chọn lớp / chi đoàn --</option>
               <?php foreach ($lops as $lop): ?>
                 <option value="<?= htmlspecialchars($lop['id']) ?>">
@@ -74,7 +74,7 @@ require __DIR__ . '/../../includes/header.php';
 
           <div class="mb-3">
             <label for="chuc_vu" class="form-label">Chức vụ trong chi đoàn</label>
-            <select class="form-select" id="chuc_vu" name="chuc_vu">
+              <select class="form-select form-control" id="chuc_vu" name="chuc_vu">
               <option value="">-- Chọn chức vụ --</option>
               <option value="Đoàn viên">Đoàn viên</option>
               <option value="Bí thư">Bí thư</option>
@@ -85,7 +85,7 @@ require __DIR__ . '/../../includes/header.php';
 
           <div class="mb-3">
             <label for="trang_thai" class="form-label">Trạng thái sinh hoạt</label>
-            <select class="form-select" id="trang_thai" name="trang_thai">
+              <select class="form-select form-control" id="trang_thai" name="trang_thai">
               <option value="Đang sinh hoạt">Đang sinh hoạt</option>
               <option value="Chuyển sinh hoạt">Chuyển sinh hoạt</option>
               <option value="Đã ra trường">Đã ra trường</option>

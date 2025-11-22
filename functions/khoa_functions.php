@@ -30,6 +30,27 @@ function getAllKhoa() {
     return $list;
 }
 
+// [FITDNU-ADD] Tìm kiếm khoa/viện theo từ khóa
+function searchKhoa($kw = '') {
+    $conn = getDbConnection();
+    $kw = trim($kw);
+    if ($kw === '') return getAllKhoa();
+    $like = "%$kw%";
+    $sql = "SELECT id, ten_khoa, truong_khoa, sdt_lien_he, email_lien_he, mo_ta
+            FROM khoa
+            WHERE ten_khoa LIKE ? OR truong_khoa LIKE ? OR email_lien_he LIKE ? OR sdt_lien_he LIKE ?
+            ORDER BY ten_khoa ASC";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, 'ssss', $like, $like, $like, $like);
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+    $rows = [];
+    while ($res && $r = mysqli_fetch_assoc($res)) $rows[] = $r;
+    mysqli_stmt_close($stmt);
+    mysqli_close($conn);
+    return $rows;
+}
+
 /**
  * Lấy thông tin 1 khoa theo ID (dùng cho trang edit)
  * mo_ta nằm cuối
@@ -100,11 +121,12 @@ function addKhoa($ten_khoa, $truong_khoa, $sdt_lien_he, $email_lien_he, $mo_ta) 
     );
 
     $ok = mysqli_stmt_execute($stmt);
+    $newId = $ok ? mysqli_insert_id($conn) : false;
 
     mysqli_stmt_close($stmt);
     mysqli_close($conn);
 
-    return $ok;
+    return $newId;
 }
 
 /**

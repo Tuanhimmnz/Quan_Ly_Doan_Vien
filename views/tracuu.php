@@ -5,10 +5,10 @@ $pageTitle = 'DNU - Tra cứu đoàn viên';
 require __DIR__ . '/../includes/header.php';
 ?>
 
-<div class="container mt-3">
-  <div class="card">
+<div class="container mt-3 reveal-on-scroll">
+  <div class="card reveal-on-scroll">
     <h3 class="text-center mb-4">TRA CỨU ĐOÀN VIÊN</h3>
-    <form action="tracuu/result_tracuu.php" method="GET" class="d-flex justify-content-center">
+    <form action="tracuu/result_tracuu.php" method="GET" class="d-flex justify-content-center ui-form">
       <input type="text" name="keyword" class="form-control" style="max-width:520px;" placeholder="Nhập mã SV, họ tên hoặc lớp..." required>
       <button class="btn btn-primary ms-2" type="submit"><i class="fa fa-search"></i> Tìm kiếm</button>
     </form>

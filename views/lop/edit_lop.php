@@ -15,10 +15,10 @@ $pageTitle = 'Chỉnh sửa lớp';
 require __DIR__ . '/../../includes/header.php';
 ?>
 
-<div class="container mt-4">
+<div class="container mt-4 reveal-on-scroll">
   <div class="row justify-content-center">
     <div class="col-md-7 col-lg-6">
-      <div class="card">
+      <div class="card reveal-on-scroll">
         <h3 class="mb-4 text-center">CHỈNH SỬA LỚP</h3>
 
         <?php if (isset($_GET['error'])): ?>
@@ -34,7 +34,7 @@ require __DIR__ . '/../../includes/header.php';
           </div>
         <?php endif; ?>
 
-        <form method="post" action="update_lop.php">
+          <form method="post" action="update_lop.php" class="ui-form">
           <input type="hidden" name="id" value="<?= htmlspecialchars($lop['id']) ?>">
           <div class="mb-3">
             <label class="form-label">Mã lớp</label>
@@ -46,7 +46,7 @@ require __DIR__ . '/../../includes/header.php';
           </div>
           <div class="mb-3">
             <label class="form-label">Khoa / Viện</label>
-            <select name="khoa_id" class="form-select" required>
+              <select name="khoa_id" class="form-select form-control" required>
               <option value="">-- Chọn khoa / viện --</option>
               <?php foreach ($khoas as $khoa): ?>
                 <option value="<?= htmlspecialchars($khoa['id']) ?>" <?= ($khoa['id'] == $lop['khoa_id']) ? 'selected' : '' ?>>

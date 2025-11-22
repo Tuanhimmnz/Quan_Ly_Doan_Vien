@@ -1,5 +1,11 @@
 <?php
+require_once __DIR__ . '/../functions/auth.php';
+require_once __DIR__ . '/../functions/audit_functions.php';
 require_once __DIR__ . '/../functions/khoa_functions.php';
+ensureSessionStarted();
+checkLogin(__DIR__ . '/../index.php');
+$currentUser = getCurrentUser();
+$userId = (int)($currentUser['id'] ?? 0);
 
 // Xác định action từ GET / POST
 $action = '';
@@ -28,6 +34,10 @@ switch ($action) {
  * Lấy tất cả khoa để in ra views/khoa.php
  */
 function handleGetAllKhoa() {
+    // [FITDNU-ADD] Search via GET q
+    if (isset($_GET['q']) && trim($_GET['q']) !== '') {
+        return searchKhoa($_GET['q']);
+    }
     return getAllKhoa();
 }
 
@@ -43,6 +53,7 @@ function handleGetKhoaById($id) {
  * LƯU Ý: mo_ta truyền vào cuối cùng theo hàm addKhoa mới
  */
 function handleCreateKhoa() {
+    global $userId;
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         header("Location: ../views/khoa.php?error=Phương thức không hợp lệ");
         exit();
@@ -63,9 +74,15 @@ function handleCreateKhoa() {
 
     // GỌI addKhoa với thứ tự MỚI:
     // addKhoa($ten_khoa, $truong_khoa, $sdt_lien_he, $email_lien_he, $mo_ta)
-    $ok = addKhoa($ten_khoa, $truong_khoa, $sdt_lien_he, $email_lien_he, $mo_ta);
+    $newId = addKhoa($ten_khoa, $truong_khoa, $sdt_lien_he, $email_lien_he, $mo_ta);
 
-    if ($ok) {
+    if ($newId) {
+        log_action($userId, 'CREATE', 'khoa', (int)$newId, null, [
+            'ten_khoa' => $ten_khoa,
+            'truong_khoa' => $truong_khoa,
+            'sdt_lien_he' => $sdt_lien_he,
+            'email_lien_he' => $email_lien_he
+        ]);
         header("Location: ../views/khoa.php?success=Thêm khoa / viện thành công");
     } else {
         header("Location: ../views/khoa/create_khoa.php?error=Không thể thêm khoa / viện");
@@ -78,6 +95,7 @@ function handleCreateKhoa() {
  * LƯU Ý: mo_ta là tham số cuối trong updateKhoa mới
  */
 function handleEditKhoa() {
+    global $userId;
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         header("Location: ../views/khoa.php?error=Phương thức không hợp lệ");
         exit();
@@ -104,9 +122,12 @@ function handleEditKhoa() {
 
     // GỌI updateKhoa với thứ tự MỚI:
     // updateKhoa($id, $ten_khoa, $truong_khoa, $sdt_lien_he, $email_lien_he, $mo_ta)
+    $before = $current;
     $ok = updateKhoa($id, $ten_khoa, $truong_khoa, $sdt_lien_he, $email_lien_he, $mo_ta);
 
     if ($ok) {
+        $after = getKhoaById($id);
+        log_action($userId, 'UPDATE', 'khoa', (int)$id, $before, $after);
         header("Location: ../views/khoa.php?success=Cập nhật khoa / viện thành công");
     } else {
         header("Location: ../views/khoa/edit_khoa.php?id=".$id."&error=Cập nhật thất bại");
@@ -119,6 +140,7 @@ function handleEditKhoa() {
  * (không đổi logic vì không liên quan mo_ta)
  */
 function handleDeleteKhoa() {
+    global $userId;
     if (!isset($_GET['id']) || $_GET['id'] === '') {
         header("Location: ../views/khoa.php?error=Thiếu ID khoa / viện");
         exit();
@@ -135,6 +157,7 @@ function handleDeleteKhoa() {
     $ok = deleteKhoa($id);
 
     if ($ok) {
+        log_action($userId, 'DELETE', 'khoa', (int)$id, $current, null);
         header("Location: ../views/khoa.php?success=Xóa khoa / viện thành công");
     } else {
         header("Location: ../views/khoa.php?error=Xóa thất bại");

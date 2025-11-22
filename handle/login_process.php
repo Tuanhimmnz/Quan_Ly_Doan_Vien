@@ -37,8 +37,14 @@ function handleLogin() {
 
         mysqli_close($conn);
 
-        // Chuyển hướng đến trang danh sách đoàn viên
-        header('Location: ../views/doanvien.php');
+        // Điều hướng theo vai trò
+        if ($user['role'] === 'admin') {
+            header('Location: ../views/doanvien.php');
+        } elseif ($user['role'] === 'user') {
+            header('Location: ../user/index.php');
+        } else {
+            header('Location: ../views/doanvien.php');
+        }
         exit();
     }
 
